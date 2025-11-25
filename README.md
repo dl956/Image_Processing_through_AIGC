@@ -67,6 +67,7 @@ export REPLICATE_API_TOKEN=your_token_here
 **Windows PowerShell:**
 ```powershell
 $env:REPLICATE_API_TOKEN="your_token_here"
+```
 
 3. Open your browser and visit the frontend address. Follow the instructions to upload images and enter prompts to experience creative AI-powered image processing!
 
