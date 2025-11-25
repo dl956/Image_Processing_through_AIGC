@@ -20,7 +20,7 @@ function App() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!image || !prompt) return alert('上传图片和输入提示词');
+    if (!image || !prompt) return alert('Please upload an image and enter a prompt');
     setLoading(true);
     setResultUrl('');
 
@@ -38,7 +38,7 @@ function App() {
     if (data.outputUrl) {
       setResultUrl(data.outputUrl);
     } else {
-      alert('处理失败：' + (data.error || '未知错误'));
+      alert('Processing failed: ' + (data.error || 'Unknown error'));
     }
   };
 
@@ -65,7 +65,7 @@ function App() {
             marginBottom: 30
           }}
         >
-          图像处理系统
+          Image Processing System
         </h2>
         <form
           onSubmit={handleSubmit}
@@ -76,7 +76,7 @@ function App() {
             width: '100%'
           }}
         >
-          {/* 图片选择和两个预览大区域 */}
+          {/* Image selection and two preview areas */}
           <div
             style={{
               display: 'flex',
@@ -88,7 +88,7 @@ function App() {
               gap: 40
             }}
           >
-            {/* 左侧：未处理图片 */}
+            {/* Left: original image */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <input
                 type="file"
@@ -111,16 +111,16 @@ function App() {
                 {imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt="原图"
+                    alt="Original"
                     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                   />
                 ) : (
-                  <span style={{ color: '#bbb', fontSize: 18 }}>未处理图片预览</span>
+                  <span style={{ color: '#bbb', fontSize: 18 }}>Original Image Preview</span>
                 )}
               </div>
-              <span style={{ fontSize: 17 }}>原图</span>
+              <span style={{ fontSize: 17 }}>Original</span>
             </div>
-            {/* 右侧：处理后图片 */}
+            {/* Right: processed image */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div
                 style={{
@@ -137,28 +137,28 @@ function App() {
                 {resultUrl ? (
                   <img
                     src={resultUrl}
-                    alt="处理结果"
+                    alt="Processed"
                     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                   />
                 ) : (
-                  <span style={{ color: '#bbb', fontSize: 18 }}>处理后图片预览</span>
+                  <span style={{ color: '#bbb', fontSize: 18 }}>Processed Image Preview</span>
                 )}
               </div>
-              <span style={{ fontSize: 17 }}>处理后</span>
+              <span style={{ fontSize: 17 }}>Processed</span>
             </div>
           </div>
-          {/* 多行提示词输入框 + 紧贴提交按钮 */}
+          {/* Multiline prompt input + submit button */}
           <div style={{ width: 660, maxWidth: '98vw', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 12 }}>
             <textarea
-              placeholder="提示词"
+              placeholder="Prompt"
               value={prompt}
               onChange={handlePromptChange}
               rows={3}
               style={{
                 fontSize: 20,
-                minHeight: 80,       // 更小的默认高度
+                minHeight: 80,
                 maxHeight: 200,
-                width: 640,          // 更宽
+                width: 640,
                 padding: '12px 16px',
                 marginBottom: 18,
                 boxSizing: 'border-box',
@@ -178,10 +178,10 @@ function App() {
                 background: '#2563eb',
                 color: '#fff',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                marginTop: 0    // 紧贴textarea
+                marginTop: 0
               }}
             >
-              {loading ? '处理中...' : '提交'}
+              {loading ? 'Processing...' : 'Submit'}
             </button>
           </div>
         </form>
