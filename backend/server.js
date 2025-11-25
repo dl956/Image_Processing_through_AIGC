@@ -9,14 +9,14 @@ app.use(express.json());
 
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 
-// 日志函数，统一带时间、IP、附加信息
+// Logging function: unified with time, IP, extra info
 function logWithDetails(msg, req, extra = {}) {
   const now = new Date().toISOString();
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   console.log(`[${now}] [IP:${ip}] ${msg} | Extra: ${JSON.stringify(extra)}`);
 }
 
-// 读取上传文件base64内容，异常返回null
+// Read uploaded file as base64, return null on error
 function getUploadedFileBase64(imagePath) {
   try {
     return fs.readFileSync(imagePath, { encoding: 'base64' });
@@ -25,26 +25,26 @@ function getUploadedFileBase64(imagePath) {
   }
 }
 
-// 删除临时文件，异步
+// Delete temporary file (async)
 function cleanupFile(imagePath) {
   if (imagePath) {
     fs.unlink(imagePath, err => {
       if (err) {
-        console.warn(`[CLEANUP] 删除临时文件失败: ${imagePath}, err=${err.message}`);
+        console.warn(`[CLEANUP] Failed to delete temp file: ${imagePath}, err=${err.message}`);
       } else {
-        console.log(`[CLEANUP] 成功删除临时文件: ${imagePath}`);
+        console.log(`[CLEANUP] Successfully deleted temp file: ${imagePath}`);
       }
     });
   }
 }
 
-// 封装 Replicate 异步推理+轮询，出错抛异常
+// Wrap Replicate async inference + polling, throw on error
 async function handleReplicate(imageBase64, prompt, req) {
   const input = {
     input_image: `data:image/png;base64,${imageBase64}`,
     prompt: prompt
   };
-  logWithDetails('[Replicate] 请求参数', req, { prompt });
+  logWithDetails('[Replicate] Request parameters', req, { prompt });
   const resp = await fetch('https://api.replicate.com/v1/models/black-forest-labs/flux-kontext-pro/predictions', {
     method: 'POST',
     headers: {
@@ -54,13 +54,13 @@ async function handleReplicate(imageBase64, prompt, req) {
     body: JSON.stringify({ input })
   });
   const data = await resp.json();
-  logWithDetails('[Replicate] 首次响应', req, data);
+  logWithDetails('[Replicate] First response', req, data);
 
   if (!data || !data.id) {
-    throw new Error('Replicate API 返回异常:' + JSON.stringify(data));
+    throw new Error('Replicate API returned an unexpected result:' + JSON.stringify(data));
   }
 
-  // 轮询最多30次，每2秒
+  // Poll up to 30 times, every 2 seconds
   const maxTries = 30;
   let status = data.status;
   let outputUrl = null;
@@ -70,38 +70,38 @@ async function handleReplicate(imageBase64, prompt, req) {
       headers: { 'Authorization': `Token ${REPLICATE_API_TOKEN}` }
     });
     const pollData = await pollResp.json();
-    logWithDetails('[Replicate] 轮询响应', req, { tryCount, status: pollData.status });
+    logWithDetails('[Replicate] Polling response', req, { tryCount, status: pollData.status });
     status = pollData.status;
     if (status === 'succeeded') {
       outputUrl = pollData.output;
     }
   }
-  if (!outputUrl) throw new Error('Replicate输出失败');
+  if (!outputUrl) throw new Error('Replicate output failed');
   return outputUrl;
 }
 
-// 主路由
+// Main route
 app.post('/api/process-image', upload.single('image'), async (req, res) => {
   let imagePath = null;
   try {
     if (!req.file || !req.body.prompt) {
-      logWithDetails('参数校验失败', req, { hasFile: !!req.file, prompt: req.body.prompt });
-      return res.status(400).json({ error: '缺少文件或prompt参数' });
+      logWithDetails('Parameter validation failed', req, { hasFile: !!req.file, prompt: req.body.prompt });
+      return res.status(400).json({ error: 'Missing file or prompt parameter' });
     }
     imagePath = req.file.path;
     const prompt = req.body.prompt;
     const imageBase64 = getUploadedFileBase64(imagePath);
     if (!imageBase64) {
-      logWithDetails('图片读取失败', req, { imagePath });
+      logWithDetails('Failed to read image', req, { imagePath });
       return res.status(500).json({ error: 'Failed to read uploaded file' });
     }
 
     const outputUrl = await handleReplicate(imageBase64, prompt, req);
-    logWithDetails('流程完成，返回用户', req, { outputUrl });
+    logWithDetails('Process complete, returning to user', req, { outputUrl });
 
     res.json({ outputUrl });
   } catch (err) {
-    logWithDetails('处理异常', req, { msg: err.message, stack: err.stack });
+    logWithDetails('Processing exception', req, { msg: err.message, stack: err.stack });
     res.status(500).json({ error: err.message });
   } finally {
     cleanupFile(imagePath);
