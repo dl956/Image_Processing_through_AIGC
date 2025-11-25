@@ -2,6 +2,8 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+![Screenshot](./screenshot.png)
+
 ## Project Overview
 
 **Image Processing through AIGC** is an AI-powered web application for intelligent image creation and editing. Users can upload images and enter prompts; the backend leverages Replicate’s cutting-edge AI models to generate new images or artistic results based on user instructions. This project features a modern web stack with a user-friendly frontend and secure Node.js/Express backend, making it easy to experience the creative power of AIGC (AI Generated Content).
@@ -49,7 +51,7 @@ Image_Processing_through_AIGC/
 
    Frontend example:
    ```bash
-   cd ../frontend
+   cd ../frontend/my-vite-app
    npm install
    npm run dev
    ```
